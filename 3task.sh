@@ -59,3 +59,9 @@ SELECT
   (ARRAY['login','purchase','logout','error'])[1 + floor(random() * 4)] AS kind,
   md5(random()::text) AS payload
 FROM generate_series(1, 20000);
+
+SELECT t.spcname AS tablespace_name,
+       c.relname AS object_name,
+       c.relkind AS object_type
+FROM pg_class c
+JOIN pg_tablespace t ON c.reltablespace = t.oid;
