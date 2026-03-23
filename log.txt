@@ -1,0 +1,181 @@
+[s409829@helios ~]$ ssh postgres8@pg100
+(postgres8@pg100.cs.ifmo.ru) Password for postgres8@pg100.cs.ifmo.ru:
+Last login: Fri Mar 20 01:57:48 2026 from helios.cs.ifmo.ru
+[postgres8@pg100 ~]$ ls
+aiz26		backup_dir	bench.sql	best_backup.sh	cache		connect.sh	custom.conf	ihv13		myj76		pg_backup.log	zvq81
+[postgres8@pg100 ~]$ ls
+aiz26		backup_dir	bench.sql	best_backup.sh	cache		connect.sh	custom.conf	ihv13		myj76		pg_backup.log	zvq81
+[postgres8@pg100 ~]$ cd cache/
+[postgres8@pg100 ~/cache]$ ;s
+-bash: синтаксическая ошибка рядом с неожиданным маркером «;»
+[postgres8@pg100 ~/cache]$ ls
+[postgres8@pg100 ~/cache]$ ls
+[postgres8@pg100 ~/cache]$ export PGDATA=$HOME/ihv13
+[postgres8@pg100 ~/cache]$ cd ..
+[postgres8@pg100 ~]$ ls ihv13/
+base/                 pg_commit_ts/         pg_ident.conf         pg_notify/            pg_snapshots/         pg_subtrans/          PG_VERSION            postgresql.auto.conf  postmaster.pid
+custom.conf           pg_dynshmem/          pg_logical/           pg_replslot/          pg_stat/              pg_tblspc/            pg_wal/               postgresql.conf       server.log
+global/               pg_hba.conf           pg_multixact/         pg_serial/            pg_stat_tmp/          pg_twophase/          pg_xact/              postmaster.opts       
+[postgres8@pg100 ~]$ cd ..
+[postgres8@pg100 /var/db]$ ls
+entropy		freebsd-update	ipf		ntp		ports		postgres0	postgres2	postgres4	postgres6	postgres8	services.db	zoneinfo
+etcupdate	hyperv		mtree		pkg		postgres	postgres1	postgres3	postgres5	postgres7	postgres9	zfsd
+[postgres8@pg100 /var/db]$ cd ~
+[postgres8@pg100 ~]$ export PGDATA=$HOME/ihv13
+[postgres8@pg100 ~]$ export PGUSERNAME=postgres8
+[postgres8@pg100 ~]$ export NEW_TABLESPACE_ROOT=/home/postgres8/restored_tablespaces
+[postgres8@pg100 ~]$ ls
+aiz26		backup_dir	bench.sql	best_backup.sh	cache		connect.sh	custom.conf	ihv13		myj76		pg_backup.log	zvq81
+[postgres8@pg100 ~]$ rm -rf "$PGDATA/pg_wal"
+[postgres8@pg100 ~]$ psql -h "$PGDATA" -p 9571 -U chousik -d postgres -c "select now();" || true
+psql: ошибка: подключиться к серверу через сокет "/var/db/postgres8/ihv13/.s.PGSQL.9571" не удалось: No such file or directory
+	Сервер действительно работает локально и принимает подключения через этот сокет?
+[postgres8@pg100 ~]$ pg_ctl -D "$PGDATA" restart || true
+ожидание завершения работы сервера.... готово
+сервер остановлен
+ожидание запуска сервера....2026-03-20 02:42:16.510 MSK [66928] СООБЩЕНИЕ:  завершение вывода в stderr
+2026-03-20 02:42:16.510 MSK [66928] ПОДСКАЗКА:  В дальнейшем протокол будет выводиться в "syslog".
+ прекращение ожидания
+pg_ctl: не удалось запустить сервер
+Изучите протокол выполнения.
+[postgres8@pg100 ~]$ tail -n 50 "$PGDATA/server.log" || true
+2026-02-20 09:13:19.512 MSK [64208] СООБЩЕНИЕ:  завершение вывода в stderr
+2026-02-20 09:13:19.512 MSK [64208] ПОДСКАЗКА:  В дальнейшем протокол будет выводиться в "syslog".
+[postgres8@pg100 ~]$ pg_ctl -D "$PGDATA" stop -m immediate || true
+pg_ctl: файл PID "/var/db/postgres8/ihv13/postmaster.pid" не существует
+Запущен ли сервер?
+[postgres8@pg100 ~]$ LATEST_BACKUP="$(find "$BASE_BACKUP_ROOT" -mindepth 1 -maxdepth 1 -type d -name 'basebackup-*' | LC_ALL=C sort | tail -n 1)"
+find: : No such file or directory
+[postgres8@pg100 ~]$ export BASE_BACKUP_ROOT=backup_dir
+[postgres8@pg100 ~]$ LATEST_BACKUP="$(find "$BASE_BACKUP_ROOT" -mindepth 1 -maxdepth 1 -type d -name 'basebackup-*' | LC_ALL=C sort | tail -n 1)"
+[postgres8@pg100 ~]$ mv "$PGDATA" "${PGDATA}_broken_$(date +%Y%m%d_%H%M%S)"
+mkdir -p "$PGDATA"
+mkdir -p "$PGDATA/pg_wal"
+mkdir -p "$NEW_TABLESPACE_ROOT"
+mkdir: /home: Permission denied
+[postgres8@pg100 ~]$ mkdir -p "$PGDATA"
+[postgres8@pg100 ~]$ mkdir -p "$PGDATA/pg_wal"
+[postgres8@pg100 ~]$ mkdir -p "$NEW_TABLESPACE_ROOT"
+mkdir: /home: Permission denied
+[postgres8@pg100 ~]$ export NEW_TABLESPACE_ROOT=restored_tablespaces
+[postgres8@pg100 ~]$ mkdir -p "$NEW_TABLESPACE_ROOT"
+[postgres8@pg100 ~]$ tar -xf "$LATEST_BACKUP/base.tar" -C "$PGDATA"
+tar: Error opening archive: Failed to open '/base.tar'
+[postgres8@pg100 ~]$ tar -xf "$LATEST_BACKUP/base.tar" -C "$PGDATA"
+tar: Error opening archive: Failed to open '/base.tar'
+[postgres8@pg100 ~]$ if [ -f "$LATEST_BACKUP/pg_wal.tar" ]; then
+  tar -xf "$LATEST_BACKUP/pg_wal.tar" -C "$PGDATA/pg_wal"
+fi
+[postgres8@pg100 ~]$ tar -xf "$LATEST_BACKUP/base.tar" -C "$PGDATA"
+tar: Error opening archive: Failed to open '/base.tar'
+[postgres8@pg100 ~]$ echo "$LATEST_BACKUP"
+
+[postgres8@pg100 ~]$ ls -lah "$LATEST_BACKUP"
+ls: : No such file or directory
+[postgres8@pg100 ~]$ LATEST_BACKUP="$(find "$HOME/backup_dir" -mindepth 1 -maxdepth 1 -type d -name 'backup-*' | LC_ALL=C sort | tail -n 1)"
+echo "$LATEST_BACKUP"
+ls -lah "$LATEST_BACKUP"
+/var/db/postgres8/backup_dir/backup-2026-03-20_02-07-15
+total 18808
+drwx------  2 postgres8 postgres    7B 20 марта 02:07 .
+drwxr-xr-x  8 postgres8 postgres    8B 20 марта 02:07 ..
+-rw-------  1 postgres8 postgres  391K 20 марта 02:07 16398.tar
+-rw-------  1 postgres8 postgres  126K 20 марта 02:07 16399.tar
+-rw-------  1 postgres8 postgres  1,7M 20 марта 02:07 16400.tar
+-rw-------  1 postgres8 postgres  184K 20 марта 02:07 backup_manifest
+-rw-------  1 postgres8 postgres  138M 20 марта 02:07 base.tar
+[postgres8@pg100 ~]$ tar -xf "$LATEST_BACKUP/base.tar" -C "$PGDATA"
+[postgres8@pg100 ~]$ if [ -f "$LATEST_BACKUP/pg_wal.tar" ]; then
+  tar -xf "$LATEST_BACKUP/pg_wal.tar" -C "$PGDATA/pg_wal"
+fi
+[postgres8@pg100 ~]$ for tar_file in "$LATEST_BACKUP"/*.tar; do
+  tar_name="$(basename "$tar_file")"
+  if [ "$tar_name" = "base.tar" ] || [ "$tar_name" = "pg_wal.tar" ]; then
+    continue
+  fi
+
+  ts_oid="${tar_name%.tar}"
+  new_ts_dir="$NEW_TABLESPACE_ROOT/$ts_oid"
+
+  mkdir -p "$new_ts_dir"
+  rm -f "$PGDATA/pg_tblspc/$ts_oid"
+  ln -s "$new_ts_dir" "$PGDATA/pg_tblspc/$ts_oid"
+  tar -xf "$tar_file" -C "$new_ts_dir"
+done
+[postgres8@pg100 ~]$ chmod 700 "$PGDATA"
+[postgres8@pg100 ~]$ cat >> "$PGDATA/postgresql.auto.conf" <<EOF
+restore_command = 'scp ${REMOTE_WAL_HOST}:${REMOTE_WAL_DIR}/%f %p'
+recovery_target_timeline = 'latest'
+EOF
+
+touch "$PGDATA/recovery.signal"
+[postgres8@pg100 ~]$ pg_ctl -D "$PGDATA" -l "$PGDATA/server.log" start
+ожидание запуска сервера.... прекращение ожидания
+pg_ctl: не удалось запустить сервер
+Изучите протокол выполнения.
+[postgres8@pg100 ~]$ tail -n 20 "$PGDATA/postgresql.auto.conf"
+# Do not edit this file manually!
+# It will be overwritten by the ALTER SYSTEM command.
+synchronous_commit = 'off'
+restore_command = 'scp :/%f %p'
+recovery_target_timeline = 'latest'
+[postgres8@pg100 ~]$ cat >> "$PGDATA/postgresql.auto.conf" <<'EOF'
+restore_command = 'scp postgres0@pg133:backup_dir/wal/%f %p'
+recovery_target_timeline = 'latest'
+EOF
+[postgres8@pg100 ~]$ touch "$PGDATA/recovery.signal"
+[postgres8@pg100 ~]$ touch "$PGDATA/recovery.signal"
+[postgres8@pg100 ~]$ mkdir -p "$PGDATA/pg_wal"
+[postgres8@pg100 ~]$ chmod 700 "$PGDATA"
+[postgres8@pg100 ~]$ chmod 700 "$PGDATA/pg_wal"
+[postgres8@pg100 ~]$ ssh postgres0@pg133 "ls -lah ~/backup_dir/wal | tail"
+-rw-------  1 postgres0 postgres   16M 20 марта 01:59 0000000100000000000000F1
+-rw-------  1 postgres0 postgres   16M 20 марта 02:01 0000000100000000000000F2
+-rw-------  1 postgres0 postgres   16M 20 марта 02:02 0000000100000000000000F3
+-rw-------  1 postgres0 postgres   16M 20 марта 02:03 0000000100000000000000F4
+-rw-------  1 postgres0 postgres   16M 20 марта 02:03 0000000100000000000000F5
+-rw-------  1 postgres0 postgres  341B 20 марта 02:03 0000000100000000000000F5.00000028.backup
+-rw-------  1 postgres0 postgres   16M 20 марта 02:07 0000000100000000000000F6
+-rw-------  1 postgres0 postgres   16M 20 марта 02:07 0000000100000000000000F7
+-rw-------  1 postgres0 postgres  341B 20 марта 02:07 0000000100000000000000F7.00000028.backup
+-rw-------  1 postgres0 postgres   16M 20 марта 02:12 0000000100000000000000F8
+[postgres8@pg100 ~]$ pg_ctl -D "$PGDATA" -l "$PGDATA/server.log" start || true
+tail -n 100 "$PGDATA/server.log"
+ожидание запуска сервера..... готово
+сервер запущен
+2026-02-20 09:13:19.512 MSK [64208] СООБЩЕНИЕ:  завершение вывода в stderr
+2026-02-20 09:13:19.512 MSK [64208] ПОДСКАЗКА:  В дальнейшем протокол будет выводиться в "syslog".
+2026-03-20 02:47:20.257 MSK [67443] СООБЩЕНИЕ:  завершение вывода в stderr
+2026-03-20 02:47:20.257 MSK [67443] ПОДСКАЗКА:  В дальнейшем протокол будет выводиться в "syslog".
+cp: :/00000002.history: No such file or directory
+cp: :/0000000100000000000000F7: No such file or directory
+2026-03-20 02:50:16.431 MSK [67799] СООБЩЕНИЕ:  завершение вывода в stderr
+2026-03-20 02:50:16.431 MSK [67799] ПОДСКАЗКА:  В дальнейшем протокол будет выводиться в "syslog".
+scp: backup_dir/wal/00000002.history: No such file or directory
+scp: backup_dir/wal/0000000100000000000000F9: No such file or directory
+[postgres8@pg100 ~]$ psql -h localhost -p 9571 -U chousik -d postgres -c "select pg_is_in_recovery();"
+Пароль пользователя chousik: 
+psql: ошибка: подключиться к серверу "localhost" (::1), порту 9571 не удалось: ВАЖНО:  пользователь "chousik" не прошёл проверку подлинности (по паролю)
+[postgres8@pg100 ~]$ psql -h localhost -p 9571 -U chousik -d postgres -c "select pg_is_in_recovery();"
+Пароль пользователя chousik: 
+ pg_is_in_recovery 
+-------------------
+ f
+(1 строка)
+
+[postgres8@pg100 ~]$ psql -h localhost -p 9571 -U chousik -d postgres -c "\l"
+Пароль пользователя chousik: 
+                                                             Список баз данных
+     Имя     | Владелец  | Кодировка | Провайдер локали |  LC_COLLATE  |   LC_CTYPE   | локаль ICU | Правила ICU |      Права доступа      
+-------------+-----------+-----------+------------------+--------------+--------------+------------+-------------+-------------------------
+ easygoldlab | postgres8 | KOI8R     | libc             | ru_RU.KOI8-R | ru_RU.KOI8-R |            |             | =Tc/postgres8          +
+             |           |           |                  |              |              |            |             | postgres8=CTc/postgres8+
+             |           |           |                  |              |              |            |             | user1=c/postgres8
+ postgres    | postgres8 | KOI8R     | libc             | ru_RU.KOI8-R | ru_RU.KOI8-R |            |             | 
+ template0   | postgres8 | KOI8R     | libc             | ru_RU.KOI8-R | ru_RU.KOI8-R |            |             | =c/postgres8           +
+             |           |           |                  |              |              |            |             | postgres8=CTc/postgres8
+ template1   | postgres8 | KOI8R     | libc             | ru_RU.KOI8-R | ru_RU.KOI8-R |            |             | =c/postgres8           +
+             |           |           |                  |              |              |            |             | postgres8=CTc/postgres8
+(4 строки)
+
+[postgres8@pg100 ~]$ 

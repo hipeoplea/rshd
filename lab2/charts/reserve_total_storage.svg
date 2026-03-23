@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="700" viewBox="0 0 1200 700">
+<rect width="100%" height="100%" fill="white"/>
+<text x="600.0" y="36" text-anchor="middle" font-size="28" font-family="Arial">Резервный узел: общий объем хранения</text>
+<line x1="110" y1="610.0" x2="1160" y2="610.0" stroke="#d0d0d0"/>
+<text x="98" y="615.0" text-anchor="end" font-size="16" font-family="Arial">0.0</text>
+<line x1="110" y1="502.0" x2="1160" y2="502.0" stroke="#d0d0d0"/>
+<text x="98" y="507.0" text-anchor="end" font-size="16" font-family="Arial">24.0</text>
+<line x1="110" y1="394.0" x2="1160" y2="394.0" stroke="#d0d0d0"/>
+<text x="98" y="399.0" text-anchor="end" font-size="16" font-family="Arial">48.0</text>
+<line x1="110" y1="286.0" x2="1160" y2="286.0" stroke="#d0d0d0"/>
+<text x="98" y="291.0" text-anchor="end" font-size="16" font-family="Arial">72.0</text>
+<line x1="110" y1="178.0" x2="1160" y2="178.0" stroke="#d0d0d0"/>
+<text x="98" y="183.0" text-anchor="end" font-size="16" font-family="Arial">96.0</text>
+<line x1="110" y1="70.0" x2="1160" y2="70.0" stroke="#d0d0d0"/>
+<text x="98" y="75.0" text-anchor="end" font-size="16" font-family="Arial">120.0</text>
+<line x1="110.0" y1="70" x2="110.0" y2="610" stroke="#ececec"/>
+<text x="110.0" y="634" text-anchor="middle" font-size="15" font-family="Arial">1</text>
+<line x1="343.3" y1="70" x2="343.3" y2="610" stroke="#ececec"/>
+<text x="343.3" y="634" text-anchor="middle" font-size="15" font-family="Arial">7</text>
+<line x1="615.6" y1="70" x2="615.6" y2="610" stroke="#ececec"/>
+<text x="615.6" y="634" text-anchor="middle" font-size="15" font-family="Arial">14</text>
+<line x1="887.8" y1="70" x2="887.8" y2="610" stroke="#ececec"/>
+<text x="887.8" y="634" text-anchor="middle" font-size="15" font-family="Arial">21</text>
+<line x1="1160.0" y1="70" x2="1160.0" y2="610" stroke="#ececec"/>
+<text x="1160.0" y="634" text-anchor="middle" font-size="15" font-family="Arial">28</text>
+<line x1="110" y1="610" x2="1160" y2="610" stroke="#222" stroke-width="2"/>
+<line x1="110" y1="70" x2="110" y2="610" stroke="#222" stroke-width="2"/>
+<text x="600.0" y="676" text-anchor="middle" font-size="20" font-family="Arial">Дни</text>
+<text x="28" y="350.0" transform="rotate(-90 28 350.0)" text-anchor="middle" font-size="20" font-family="Arial">Объем, GiB</text>
+<polyline fill="none" stroke="#1d6f42" stroke-width="4" points="110.0,603.0 148.9,595.9 187.8,588.9 226.7,581.9 265.6,574.8 304.4,567.8 343.3,531.5 382.2,524.4 421.1,517.4 460.0,510.4 498.9,503.4 537.8,496.3 576.7,489.3 615.6,423.7 654.4,416.7 693.3,409.7 732.2,402.6 771.1,395.6 810.0,388.6 848.9,381.5 887.8,286.8 926.7,279.7 965.6,272.7 1004.4,265.7 1043.3,258.6 1082.2,251.6 1121.1,244.6 1160.0,120.6"/>
+<circle cx="110.0" cy="603.0" r="4.5" fill="#1d6f42"/>
+<circle cx="148.9" cy="595.9" r="4.5" fill="#1d6f42"/>
+<circle cx="187.8" cy="588.9" r="4.5" fill="#1d6f42"/>
+<circle cx="226.7" cy="581.9" r="4.5" fill="#1d6f42"/>
+<circle cx="265.6" cy="574.8" r="4.5" fill="#1d6f42"/>
+<circle cx="304.4" cy="567.8" r="4.5" fill="#1d6f42"/>
+<circle cx="343.3" cy="531.5" r="4.5" fill="#1d6f42"/>
+<circle cx="382.2" cy="524.4" r="4.5" fill="#1d6f42"/>
+<circle cx="421.1" cy="517.4" r="4.5" fill="#1d6f42"/>
+<circle cx="460.0" cy="510.4" r="4.5" fill="#1d6f42"/>
+<circle cx="498.9" cy="503.4" r="4.5" fill="#1d6f42"/>
+<circle cx="537.8" cy="496.3" r="4.5" fill="#1d6f42"/>
+<circle cx="576.7" cy="489.3" r="4.5" fill="#1d6f42"/>
+<circle cx="615.6" cy="423.7" r="4.5" fill="#1d6f42"/>
+<circle cx="654.4" cy="416.7" r="4.5" fill="#1d6f42"/>
+<circle cx="693.3" cy="409.7" r="4.5" fill="#1d6f42"/>
+<circle cx="732.2" cy="402.6" r="4.5" fill="#1d6f42"/>
+<circle cx="771.1" cy="395.6" r="4.5" fill="#1d6f42"/>
+<circle cx="810.0" cy="388.6" r="4.5" fill="#1d6f42"/>
+<circle cx="848.9" cy="381.5" r="4.5" fill="#1d6f42"/>
+<circle cx="887.8" cy="286.8" r="4.5" fill="#1d6f42"/>
+<circle cx="926.7" cy="279.7" r="4.5" fill="#1d6f42"/>
+<circle cx="965.6" cy="272.7" r="4.5" fill="#1d6f42"/>
+<circle cx="1004.4" cy="265.7" r="4.5" fill="#1d6f42"/>
+<circle cx="1043.3" cy="258.6" r="4.5" fill="#1d6f42"/>
+<circle cx="1082.2" cy="251.6" r="4.5" fill="#1d6f42"/>
+<circle cx="1121.1" cy="244.6" r="4.5" fill="#1d6f42"/>
+<circle cx="1160.0" cy="120.6" r="4.5" fill="#1d6f42"/>
+<text x="1060.0" y="108.6" font-size="16" font-family="Arial">108.76 GiB</text>
+</svg>

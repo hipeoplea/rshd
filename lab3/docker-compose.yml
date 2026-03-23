@@ -1,0 +1,53 @@
+services:
+  primary:
+    container_name: primary
+    hostname: primary
+    build:
+      context: ./primary
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      PGDATA: /var/lib/postgresql/data
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: appdb
+    volumes:
+      - ./primary/data:/var/lib/postgresql/data
+      - ./primary/init:/docker-entrypoint-initdb.d
+    networks:
+      - pg_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d appdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  standby:
+    container_name: standby
+    hostname: standby
+    build:
+      context: ./standby
+    restart: unless-stopped
+    ports:
+      - "5433:5432"
+    depends_on:
+      primary:
+        condition: service_healthy
+    environment:
+      PGDATA: /var/lib/postgresql/data
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: appdb
+      PRIMARY_HOST: primary
+      PRIMARY_PORT: 5432
+      REPLICATION_USER: replicator
+      REPLICATION_PASSWORD: replpass
+    volumes:
+      - ./standby/data:/var/lib/postgresql/data
+    networks:
+      - pg_net
+
+networks:
+  pg_net:
+    driver: bridge
