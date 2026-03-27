@@ -6,6 +6,11 @@
 cd /Users/hipeoplea/rshd/lab3
 ```
 
+Аутентификация:
+- локальные подключения настроены без `trust`
+- для всех вызовов `psql` через `docker exec` ниже используется `-e PGPASSWORD=postgres`
+- для репликации резервный узел использует отдельного пользователя `replicator`
+
 Поднять стенд:
 
 ```bash
@@ -16,9 +21,9 @@ docker compose ps
 Проверить, что репликация активна:
 
 ```bash
-docker exec primary psql -U postgres -d appdb -c "select application_name, client_addr, state, sync_state from pg_stat_replication;"
-docker exec standby psql -U postgres -d appdb -c "select pg_is_in_recovery();"
-docker exec standby psql -U postgres -d appdb -c "show transaction_read_only;"
+docker exec -e PGPASSWORD=postgres primary psql -U postgres -d appdb -c "select application_name, client_addr, state, sync_state from pg_stat_replication;"
+docker exec -e PGPASSWORD=postgres standby psql -U postgres -d appdb -c "select pg_is_in_recovery();"
+docker exec -e PGPASSWORD=postgres standby psql -U postgres -d appdb -c "show transaction_read_only;"
 ```
 
 Ожидаемо:
@@ -33,25 +38,25 @@ docker exec standby psql -U postgres -d appdb -c "show transaction_read_only;"
 Терминал 1, клиент записи на основном сервере:
 
 ```bash
-docker exec -e PGAPPNAME=client_rw_1 -it primary psql -U postgres -d appdb
+docker exec -e PGAPPNAME=client_rw_1 -e PGPASSWORD=postgres -it primary psql -U postgres -d appdb
 ```
 
 Терминал 2, второй клиент записи на основном сервере:
 
 ```bash
-docker exec -e PGAPPNAME=client_rw_2 -it primary psql -U postgres -d appdb
+docker exec -e PGAPPNAME=client_rw_2 -e PGPASSWORD=postgres -it primary psql -U postgres -d appdb
 ```
 
 Терминал 3, клиент чтения на резервном сервере:
 
 ```bash
-docker exec -e PGAPPNAME=client_ro_1 -it standby psql -U postgres -d appdb
+docker exec -e PGAPPNAME=client_ro_1 -e PGPASSWORD=postgres -it standby psql -U postgres -d appdb
 ```
 
 В отдельном терминале можно показать активные клиентские подключения:
 
 ```bash
-docker exec primary psql -U postgres -d appdb -c "select pid, application_name, state, backend_type from pg_stat_activity where datname = 'appdb' order by pid;"
+docker exec -e PGPASSWORD=postgres primary psql -U postgres -d appdb -c "select pid, application_name, state, backend_type from pg_stat_activity where datname = 'appdb' order by pid;"
 ```
 
 ## Этап 1. Демонстрация наполнения базы и репликации
@@ -108,7 +113,7 @@ select * from test2 order by id;
 Дополнительная проверка репликации:
 
 ```bash
-docker exec primary psql -U postgres -d appdb -c "select application_name, state, sync_state, sent_lsn, write_lsn, flush_lsn, replay_lsn from pg_stat_replication;"
+docker exec -e PGPASSWORD=postgres primary psql -U postgres -d appdb -c "select application_name, state, sync_state, sent_lsn, write_lsn, flush_lsn, replay_lsn from pg_stat_replication;"
 ```
 
 ## Этап 2. Симуляция и обработка сбоя
@@ -118,9 +123,9 @@ docker exec primary psql -U postgres -d appdb -c "select application_name, state
 Показать, что клиенты подключены и основной сервер работает в режиме чтение/запись:
 
 ```bash
-docker exec primary psql -U postgres -d appdb -c "select pid, application_name, state from pg_stat_activity where datname = 'appdb' order by pid;"
-docker exec primary psql -U postgres -d appdb -c "show transaction_read_only;"
-docker exec standby psql -U postgres -d appdb -c "show transaction_read_only;"
+docker exec -e PGPASSWORD=postgres primary psql -U postgres -d appdb -c "select pid, application_name, state from pg_stat_activity where datname = 'appdb' order by pid;"
+docker exec -e PGPASSWORD=postgres primary psql -U postgres -d appdb -c "show transaction_read_only;"
+docker exec -e PGPASSWORD=postgres standby psql -U postgres -d appdb -c "show transaction_read_only;"
 ```
 
 При желании перед сбоем выполните ещё одну короткую транзакцию на `primary`:
@@ -165,10 +170,10 @@ docker logs standby 2>&1 | rg -n "stream|promot|recovery|ready|connect|wal"
 Выполнить failover на резервный сервер:
 
 ```bash
-docker exec standby psql -U postgres -d appdb -c "select pg_is_in_recovery();"
-docker exec standby psql -U postgres -d appdb -c "select pg_promote();"
-docker exec standby psql -U postgres -d appdb -c "select pg_is_in_recovery();"
-docker exec standby psql -U postgres -d appdb -c "show transaction_read_only;"
+docker exec -e PGPASSWORD=postgres standby psql -U postgres -d appdb -c "select pg_is_in_recovery();"
+docker exec -e PGPASSWORD=postgres standby psql -U postgres -d appdb -c "select pg_promote();"
+docker exec -e PGPASSWORD=postgres standby psql -U postgres -d appdb -c "select pg_is_in_recovery();"
+docker exec -e PGPASSWORD=postgres standby psql -U postgres -d appdb -c "show transaction_read_only;"
 ```
 
 Ожидаемо:
@@ -179,8 +184,8 @@ docker exec standby psql -U postgres -d appdb -c "show transaction_read_only;"
 Открыть новые клиентские подключения уже к бывшему `standby`:
 
 ```bash
-docker exec -e PGAPPNAME=client_rw_after_failover_1 -it standby psql -U postgres -d appdb
-docker exec -e PGAPPNAME=client_rw_after_failover_2 -it standby psql -U postgres -d appdb
+docker exec -e PGAPPNAME=client_rw_after_failover_1 -e PGPASSWORD=postgres -it standby psql -U postgres -d appdb
+docker exec -e PGAPPNAME=client_rw_after_failover_2 -e PGPASSWORD=postgres -it standby psql -U postgres -d appdb
 ```
 
 Показать чтение/запись на новом основном сервере:
@@ -248,9 +253,9 @@ docker compose up -d primary
 Проверить, что старый `primary` поднялся как реплика и получил все изменения:
 
 ```bash
-docker exec primary psql -U postgres -d appdb -c "select pg_is_in_recovery();"
-docker exec primary psql -U postgres -d appdb -c "select * from test1 order by id;"
-docker exec primary psql -U postgres -d appdb -c "select * from test2 order by id;"
+docker exec -e PGPASSWORD=postgres primary psql -U postgres -d appdb -c "select pg_is_in_recovery();"
+docker exec -e PGPASSWORD=postgres primary psql -U postgres -d appdb -c "select * from test1 order by id;"
+docker exec -e PGPASSWORD=postgres primary psql -U postgres -d appdb -c "select * from test2 order by id;"
 ```
 
 ### 2. Вернуть исходные роли
@@ -261,9 +266,9 @@ docker exec primary psql -U postgres -d appdb -c "select * from test2 order by i
 
 ```bash
 docker compose stop standby
-docker exec primary psql -U postgres -d appdb -c "select pg_promote();"
-docker exec primary psql -U postgres -d appdb -c "select pg_is_in_recovery();"
-docker exec primary psql -U postgres -d appdb -c "show transaction_read_only;"
+docker exec -e PGPASSWORD=postgres primary psql -U postgres -d appdb -c "select pg_promote();"
+docker exec -e PGPASSWORD=postgres primary psql -U postgres -d appdb -c "select pg_is_in_recovery();"
+docker exec -e PGPASSWORD=postgres primary psql -U postgres -d appdb -c "show transaction_read_only;"
 ```
 
 Теперь заново создать `standby` уже от восстановленного `primary`:
@@ -281,19 +286,19 @@ docker compose up -d --build --force-recreate standby
 
 ```bash
 docker compose ps
-docker exec primary psql -U postgres -d appdb -c "select application_name, state, sync_state from pg_stat_replication;"
-docker exec standby psql -U postgres -d appdb -c "select pg_is_in_recovery();"
-docker exec standby psql -U postgres -d appdb -c "show transaction_read_only;"
+docker exec -e PGPASSWORD=postgres primary psql -U postgres -d appdb -c "select application_name, state, sync_state from pg_stat_replication;"
+docker exec -e PGPASSWORD=postgres standby psql -U postgres -d appdb -c "select pg_is_in_recovery();"
+docker exec -e PGPASSWORD=postgres standby psql -U postgres -d appdb -c "show transaction_read_only;"
 ```
 
 Сделать финальную транзакцию на `primary`:
 
 ```bash
-docker exec primary psql -U postgres -d appdb -c "begin; insert into test1(value) values ('final_check'); insert into test2(amount) values (7777); commit;"
-docker exec primary psql -U postgres -d appdb -c "select * from test1 order by id desc limit 5;"
-docker exec primary psql -U postgres -d appdb -c "select * from test2 order by id desc limit 5;"
-docker exec standby psql -U postgres -d appdb -c "select * from test1 order by id desc limit 5;"
-docker exec standby psql -U postgres -d appdb -c "select * from test2 order by id desc limit 5;"
+docker exec -e PGPASSWORD=postgres primary psql -U postgres -d appdb -c "begin; insert into test1(value) values ('final_check'); insert into test2(amount) values (7777); commit;"
+docker exec -e PGPASSWORD=postgres primary psql -U postgres -d appdb -c "select * from test1 order by id desc limit 5;"
+docker exec -e PGPASSWORD=postgres primary psql -U postgres -d appdb -c "select * from test2 order by id desc limit 5;"
+docker exec -e PGPASSWORD=postgres standby psql -U postgres -d appdb -c "select * from test1 order by id desc limit 5;"
+docker exec -e PGPASSWORD=postgres standby psql -U postgres -d appdb -c "select * from test2 order by id desc limit 5;"
 ```
 
 ## Короткая формулировка для защиты
